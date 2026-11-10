@@ -74,7 +74,38 @@ AmsAddress targetPlcAddress = new AmsAddress("15.15.15.15.1.1", 851);
 
 ### 2. TwinCAT 側のルート設定
 
-TwinCAT 側のルート設定（`StaticRoutes.xml` または TwinCAT XAE の Route 設定）にて、上記で指定した **MQTT ブローカーのアドレス (`192.168.3.54`)**、**トピック名 (`AdsOverMqtt`)**、および **クライアント側の仮想 AmsNetId (`10.10.10.10.1.1`)** が通信できるよう構成されている必要があります。
+サンプルコードで提供している`StJobEventMessage`は、以下のプロジェクトで提供しているPLCプログラム内のジョブイベント状態遷移通知メッセージの構造体データです。まず、IPC上でこのプロジェクトが動作できるようにセットアップを行ってください。
+
+[https://github.com/Beckhoff-JP/PLC_JobManagementFramework](https://github.com/Beckhoff-JP/PLC_JobManagementFramework)
+
+このIPCのADSルータのAMS Net IDは、15.15.15.15.1.1とします。Windowsの場合はタスクトレーから`Router` > `Change AMS NetId`から変更できます。TwinCAT RT Linuxの場合は、`/etc/TwinCAT/3.1/TcRegistry.xml`で変更ができます。[こちら](https://infosys.beckhoff.com/content/1033/beckhoff_rt_linux/20793600011.html?id=7348855051726748765) をご覧ください。
+
+既存のIPCのAMS Net IDに準じる場合、前節で設定した`_configuration["AmsRouter:Mqtt:0:NetId"] = "15.15.15.15.1.1";// 接続先PLCのAmsNetId` の定義部分をそのNetIDへ書き換えてください。
+
+また、IPC側もAds-Over-MQTTを通じてADS通信できる状態にする必要があります。次の設定を行ってください。
+
+* Linuxの場合
+
+   `/etc/TwinCAT/3.1/Target/Routes/mqtt.xml`
+
+* Windowsの場合
+
+   `C:\Program Files (x86)\Beckhoff\TwinCAT\3.1\Target\Routes\mqtt.xml`
+
+この`mqtt.xml`の中身は次の通りです。テキストエディタで記述して保存してください。
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<TcConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2015/12/TcConfig">
+<RemoteConnections>
+    <Mqtt>
+        <Address Port="1883">MQTTブローカのIPアドレス</Address>
+        <Topic>パブリッシュするトピック名</Topic>
+    </Mqtt>
+</RemoteConnections>
+</TcConfig>
+```
 
 ### 3. 実行サービスの切り替え（任意）
 
