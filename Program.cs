@@ -10,6 +10,6 @@ builder.Services.AddHostedService<AdsOverMqttTcRxService>();
 
 var app = builder.Build();
 
-// app.MapGet("/", () => "AdsOverMqtt Web Service is running.");
+app.MapGet("/", () => "AdsOverMqtt Web Service is running.");
 
 await app.RunAsync();
